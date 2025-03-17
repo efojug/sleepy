@@ -8,38 +8,73 @@ import json
 import time
 import threading
 
+
 data = data_init()
 app = Flask(__name__)
-wait_time = 900
-time_update = False
+device1_wait_time, device2_wait_time = 900
+device1_time_update, device2_time_update = False
 device1_status = "电脑离线"
+device1_status_int = 0
 device1_app = ""
 device2_status = "手机离线"
+device2_status_int = 0
 device2_app = ""
 
-def autoReset():
-    global device1_status, device1_app, device2_status, device2_app, wait_time, time_update
-    log.info('waiting server start')
+
+def autoOffline():
+    if not data.dget('status') and not device1_status_int and not device2_status_int:
+        data.dset('status', 0)
+        log.info('All devices are offline, set status to 0')
+
+
+def device1_timer():
+    global device1_status, device1_status_int, device1_app, device1_wait_time, device1_time_update
+    log.info('[Device 1 Timer]: waiting server start')
     time.sleep(1)
     while True:
-        if time_update:
-            log.info('detected status changed. reset timer')
-            wait_time = 900
+        if device1_time_update:
+            log.info('detected device 1 status changed. reset timer')
+            device1_wait_time = 900
 
-        if wait_time > 0:
+        if device1_wait_time > 0:
             time.sleep(1)
-            wait_time -= 1
+            device1_wait_time -= 1
         else:
-            log.info('Telling server not to update the status for the next 900 seconds')
-            if data.dget('status') != 1:
+            log.info('Telling server not to update the device 1 status for the next 900 seconds')
+            autoOffline()
+            if not data.dget('status'):
                 data.dset('status', 1)
                 device1_status="电脑离线"
+                device1_status_int = 0
                 device1_app=""
-                device2_status="手机离线"
-                device2_app=""
-                log.info('too long time not update status. auto reset')
+                log.info('Device 1 has not updated its status for a long time. Reseted.')
             else:
-                log.info('current status is 0(offline) no changes')
+                log.info('Device 1 current status already is 0(offline) no change')
+
+
+def device2_timer():
+    global device2_status, device2_status_int, device2_app, device2_wait_time, device2_time_update
+    log.info('[Device 2 Timer]: waiting server start')
+    time.sleep(1)
+    while True:
+        if device2_time_update:
+            log.info('detected device 2 status changed. reset timer')
+            device2_wait_time = 900
+
+        if device2_wait_time > 0:
+            time.sleep(1)
+            device2_wait_time -= 1
+        else:
+            log.info('Telling server not to update the device 2 status for the next 900 seconds')
+            autoOffline()
+            if not data.dget('status'):
+                data.dset('status', 1)
+                device2_status="手机离线"
+                device2_status_int = 0
+                device2_app=""
+                log.info('Device 2 has not updated its status for a long time. Reseted.')
+            else:
+                log.info('Device 2 current status already is 0(offline) no change')
 
 
 def reterr(code, message):
@@ -128,7 +163,7 @@ def get_status_list():
 
 
 @app.route('/setstatus', methods=['PUT'])
-def set_normal():
+def set_status():
     showip(request, '/setstatus')
     status = escape(request.args.get("status"))
     try:
@@ -159,35 +194,69 @@ def set_normal():
 
 @app.route('/setdevice', methods=['PUT'])
 def set_device():
-    global device1_status, device1_app, device2_status, device2_app
+    global device1_status, device1_status_int, device1_app, device1_time_update, device2_status, device2_status_int, device2_app, device2_time_update
     showip(request, '/setdevice')
+    try:
+        status = int(escape(request.args.get("status")))
+    except:
+        return reterr(
+            code='bad request',
+            message="argument 'status' must be a number"
+        )
     if escape(request.args.get("secret")) == data.dget('secret'):
         if escape(request.args.get("device")) == "1":
             log.info(f'device1_status: "{device1_status}", device1_app: "{device1_app}"')
-            device1_status = escape(request.args.get("status"))
-            device1_app = escape(request.args.get("app"))
+
+            if status == 0:
+                device1_status = "电脑离线"
+                device1_status_int = 0
+                device1_app = ""
+            elif status == 1:
+                device1_status = "电脑在线: "
+                device1_status_int = 1
+                device1_app = escape(request.args.get("app"))
+                data.dset('status', 1)
+            else:
+                return reterr(
+                    code='bad request',
+                    message='status cant bigger than 1'
+                )
+            
+            device1_time_update = True
             log.info(f'set device1 status to "{device1_status}", app to "{device1_app}"')
-            ret = {
-            'success': True,
-            'code': 'OK'
-            }
-            return log.format_dict(ret)
         
         elif escape(request.args.get("device")) == "2":
             log.info(f'device2_status: {device2_status}, device2_app: "{device2_app}"')
-            device2_status = escape(request.args.get("status"))
-            device2_app = escape(request.args.get("app"))
+
+            if status == 0:
+                device2_status = "手机离线"
+                device2_status_int = 0
+                device2_app = ""
+            elif status == 1:
+                device2_status = "手机在线: "
+                device2_status_int = 1
+                device2_app = escape(request.args.get("app"))
+                data.dset('status', 1)
+            else:
+                return reterr(
+                    code='bad request',
+                    message='status cant bigger than 1'
+                )
+            
+            device2_time_update = True
             log.info(f'set device2 status to "{device2_status}", app to "{device2_app}"')
-            ret = {
+
+        else:
+            return reterr(
+                code='bad request',
+                message='device num cant bigger than 3'
+            )
+        
+        ret = {
             'success': True,
             'code': 'OK'
             }
-            return log.format_dict(ret)
-        
-        return reterr(
-            code='bad request',
-            message='device num cant bigger than 3'
-        )
+        return log.format_dict(ret)
 
     else:
         return reterr(
