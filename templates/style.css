@@ -13,13 +13,26 @@ body, html {
     overflow: hidden;
 }
 
-body {
+@media only screen and (min-width: 500px) {
+    body {
     /* 背景图设置 */
-    background: url('{{ bg }}') no-repeat center center fixed;
+    background: url('{{ desktopbg }}') no-repeat center fixed;
     background-size: cover;
     display: flex;
     justify-content: center;
     align-items: center;
+    }
+}
+
+@media only screen and (max-width: 500px) {
+    body {
+    /* 背景图设置 */
+    background: url('{{ mobilebg }}') no-repeat center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    }
 }
 
 .card {
