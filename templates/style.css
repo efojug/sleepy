@@ -13,7 +13,7 @@ body, html {
     overflow: hidden;
 }
 
-@media only screen and (min-width: 500px) {
+@media only screen and (min-width: 800px) {
     body {
     /* 背景图设置 */
     background: url('{{ desktopbg }}') no-repeat center fixed;
@@ -24,7 +24,7 @@ body, html {
     }
 }
 
-@media only screen and (max-width: 500px) {
+@media only screen and (max-width: 800px) {
     body {
     /* 背景图设置 */
     background: url('{{ mobilebg }}') no-repeat center fixed;
