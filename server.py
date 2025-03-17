@@ -11,8 +11,8 @@ import threading
 
 data = data_init()
 app = Flask(__name__)
-device1_wait_time, device2_wait_time = 900
-device1_time_update, device2_time_update = False
+device1_wait_time, device2_wait_time = 900, 900
+device1_time_update, device2_time_update = False, False
 device1_status = "电脑离线"
 device1_status_int = 0
 device1_app = ""
