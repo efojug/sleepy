@@ -35,6 +35,7 @@ def device1Timer():
         if device1_time_update:
             log.info('detected device 1 status changed. reset timer')
             device1_wait_time = 900
+            device1_time_update = False
 
         if device1_wait_time > 0:
             time.sleep(1)
@@ -60,6 +61,7 @@ def device2Timer():
         if device2_time_update:
             log.info('detected device 2 status changed. reset timer')
             device2_wait_time = 900
+            device2_time_update = False
 
         if device2_wait_time > 0:
             time.sleep(1)
