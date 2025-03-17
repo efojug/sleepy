@@ -8,20 +8,6 @@
 
 <!-- > ver: `2.0`, configver: `2` -->
 
-## Preview
-
-演示站: [Here](https://sleepy.wyf9.top)
-
-网页:
-
-![web-1](img/web-1.png)
-
-![web-2](img/web-2.png)
-
-服务器:
-
-![server-1](img/server-1.png)
-
 ## 部署
 
 > [!WARNING]
