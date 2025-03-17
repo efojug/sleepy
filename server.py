@@ -33,14 +33,15 @@ def device1Timer():
     time.sleep(1)
     while True:
         if device1_time_update:
+            device1_time_update = False
             log.info('detected device 1 status changed. reset timer')
             device1_wait_time = 900
-            device1_time_update = False
 
         if device1_wait_time > 0:
             time.sleep(1)
             device1_wait_time -= 1
         else:
+            device1_wait_time = 900
             log.info('Telling server not to update the device 1 status for the next 900 seconds')
             autoOffline()
             if not data.dget('status'):
@@ -49,7 +50,6 @@ def device1Timer():
                 device1_status_int = 0
                 device1_app=""
                 log.info('Device 1 has not updated its status for a long time. Reseted.')
-                device1_wait_time = 900
             else:
                 log.info('Device 1 current status already is 0(offline) no change')
 
@@ -60,14 +60,15 @@ def device2Timer():
     time.sleep(1)
     while True:
         if device2_time_update:
+            device2_time_update = False
             log.info('detected device 2 status changed. reset timer')
             device2_wait_time = 900
-            device2_time_update = False
 
         if device2_wait_time > 0:
             time.sleep(1)
             device2_wait_time -= 1
         else:
+            device2_wait_time = 900
             log.info('Telling server not to update the device 2 status for the next 900 seconds')
             autoOffline()
             if not data.dget('status'):
@@ -76,7 +77,6 @@ def device2Timer():
                 device2_status_int = 0
                 device2_app=""
                 log.info('Device 2 has not updated its status for a long time. Reseted.')
-                device2_wait_time = 900
             else:
                 log.info('Device 2 current status already is 0(offline) no change')
 
