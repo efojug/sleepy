@@ -10,20 +10,36 @@ import threading
 
 data = data_init()
 app = Flask(__name__)
-global_time = 900
-
+wait_time = 900
+time_update = False
+device1_status = "电脑离线"
+device1_app = ""
+device2_status = "手机离线"
+device2_app = ""
 
 def autoReset():
+    global device1_status, device1_app, device2_status, device2_app, wait_time, time_update
     log.info('waiting server start')
     time.sleep(1)
     while True:
-        log.info('Telling server not to update the status for the next 900 seconds')
-        time.sleep(900)
-        if data.dget('status') != 1:
-            data.dset('status', 1)
-            log.info('auto reset success')
+        if time_update:
+            log.info('detected status changed. reset timer')
+            wait_time = 900
+
+        if wait_time > 0:
+            time.sleep(1)
+            wait_time -= 1
         else:
-            log.info('current status is 0(offline) no changes')
+            log.info('Telling server not to update the status for the next 900 seconds')
+            if data.dget('status') != 1:
+                data.dset('status', 1)
+                device1_status="电脑离线"
+                device1_app=""
+                device2_status="手机离线"
+                device2_app=""
+                log.info('too long time not update status. auto reset')
+            else:
+                log.info('current status is 0(offline) no changes')
 
 
 def reterr(code, message):
@@ -50,7 +66,7 @@ def showip(req, msg):
 def index():
     data.load()
     showip(request, '/')
-    ot = data.data['other']
+    info = data.data['info']
     try:
         stat = data.data['status_list'][data.data['status']]
     except:
@@ -61,10 +77,14 @@ def index():
         }
     return render_template(
         'index.html',
-        user=ot['user'],
+        user=info['user'],
         status_name=stat['name'],
         status_desc=stat['desc'],
         status_color=stat['color'],
+        device1_status=device1_status,
+        device1_app=device1_app,
+        device2_status=device2_status,
+        device2_app=device2_app
     )
 
 
@@ -72,8 +92,8 @@ def index():
 def style_css():
     response = make_response(render_template(
         'style.css',
-        bg=data.data['other']['background'],
-        alpha=data.data['other']['alpha']
+        bg=data.data['info']['background'],
+        alpha=data.data['info']['alpha']
     ))
     response.mimetype = 'text/css'
     return response
@@ -107,9 +127,9 @@ def get_status_list():
     return log.format_dict(stlst)
 
 
-@app.route('/set', methods=['PUT'])
+@app.route('/setstatus', methods=['PUT'])
 def set_normal():
-    showip(request, '/set')
+    showip(request, '/setstatus')
     status = escape(request.args.get("status"))
     try:
         status = int(status)
@@ -123,7 +143,7 @@ def set_normal():
     secret_real = data.dget('secret')
     if secret == secret_real:
         data.dset('status', status)
-        log.info('set success')
+        log.info(f'set status to {status} success')
         ret = {
             'success': True,
             'code': 'OK',
@@ -135,28 +155,46 @@ def set_normal():
             code='not authorized',
             message='invaild secret'
         )
+    
 
-
-@app.route('/set/<secret>/<int:status>')
-def set_path(secret, status):
-    showip(request, f'/set/{secret}/{status}')
-    secret = escape(secret)
-    log.info(f'status: {status}, secret: "{secret}"')
-    secret_real = data.dget('secret')
-    if secret == secret_real:
-        data.dset('status', status)
-        log.info('set success')
-        ret = {
+@app.route('/setdevice', methods=['PUT'])
+def set_device():
+    global device1_status, device1_app, device2_status, device2_app
+    showip(request, '/setdevice')
+    if escape(request.args.get("secret")) == data.dget('secret'):
+        if escape(request.args.get("device")) == "1":
+            log.info(f'device1_status: "{device1_status}", device1_app: "{device1_app}"')
+            device1_status = escape(request.args.get("status"))
+            device1_app = escape(request.args.get("app"))
+            log.info(f'set device1 status to "{device1_status}", app to "{device1_app}"')
+            ret = {
             'success': True,
-            'code': 'OK',
-            'set_to': status
-        }
-        return log.format_dict(ret)
+            'code': 'OK'
+            }
+            return log.format_dict(ret)
+        
+        elif escape(request.args.get("device")) == "2":
+            log.info(f'device2_status: {device2_status}, device2_app: "{device2_app}"')
+            device2_status = escape(request.args.get("status"))
+            device2_app = escape(request.args.get("app"))
+            log.info(f'set device2 status to "{device2_status}", app to "{device2_app}"')
+            ret = {
+            'success': True,
+            'code': 'OK'
+            }
+            return log.format_dict(ret)
+        
+        return reterr(
+            code='bad request',
+            message='device num cant bigger than 3'
+        )
+
     else:
         return reterr(
             code='not authorized',
             message='invaild secret'
         )
+
 
 if __name__ == '__main__':
     data.load()
