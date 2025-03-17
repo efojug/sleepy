@@ -11,7 +11,7 @@ import threading
 
 data = data_init()
 app = Flask(__name__)
-device1_wait_time, device2_wait_time = 900, 900
+device1_wait_time, device2_wait_time = data.dget('device1_wait_time'), data.dget('device2_wait_time')
 device1_time_update, device2_time_update = False, False
 device1_status = "电脑离线"
 device1_status_int = 0
@@ -19,39 +19,53 @@ device1_app = ""
 device2_status = "手机离线"
 device2_status_int = 0
 device2_app = ""
-
+sleep = False
 
 def autoOffline():
-    if not data.dget('status') and not device1_status_int and not device2_status_int:
-        data.dset('status', 0)
-        log.info('All devices are offline, set status to 0')
+    global sleep
+    if not sleep:
+        if not data.dget('status') and not device1_status_int and not device2_status_int:
+            data.dset('status', 0)
+            log.info('All devices are offline, set status to 0')
+            log.info('server sleeping...')
+            sleep = True
 
+def wakeup():
+    global sleep
+    if sleep:
+        sleep = False
+    log.info('server wakeup')
 
 def device1Timer():
     global device1_status, device1_status_int, device1_app, device1_wait_time, device1_time_update
     log.info('[Device 1 Timer]: waiting server start')
     time.sleep(1)
     while True:
+
+        if sleep:
+            time.sleep(1)
+            continue
+
         if device1_time_update:
             device1_time_update = False
             log.info('detected device 1 status changed. reset timer')
-            device1_wait_time = 900
+            device1_wait_time = data.dget('device1_wait_time')
 
         if device1_wait_time > 0:
             time.sleep(1)
             device1_wait_time -= 1
         else:
-            device1_wait_time = 900
+            device1_wait_time = data.dget('device1_wait_time')
             log.info('Telling server not to update the device 1 status for the next 900 seconds')
-            autoOffline()
-            if not data.dget('status'):
-                data.dset('status', 1)
+            if data.dget('status'):
+                data.dset('status', 0)
                 device1_status="电脑离线"
                 device1_status_int = 0
                 device1_app=""
                 log.info('Device 1 has not updated its status for a long time. Reseted.')
             else:
                 log.info('Device 1 current status already is 0(offline) no change')
+            autoOffline()
 
 
 def device2Timer():
@@ -59,26 +73,31 @@ def device2Timer():
     log.info('[Device 2 Timer]: waiting server start')
     time.sleep(1)
     while True:
+
+        if sleep:
+            time.sleep(1)
+            continue
+
         if device2_time_update:
             device2_time_update = False
             log.info('detected device 2 status changed. reset timer')
-            device2_wait_time = 900
+            device2_wait_time = data.dget('device2_wait_time')
 
         if device2_wait_time > 0:
             time.sleep(1)
             device2_wait_time -= 1
         else:
-            device2_wait_time = 900
+            device2_wait_time = data.dget('device2_wait_time')
             log.info('Telling server not to update the device 2 status for the next 900 seconds')
-            autoOffline()
-            if not data.dget('status'):
-                data.dset('status', 1)
+            if data.dget('status'):
+                data.dset('status', 0)
                 device2_status="手机离线"
                 device2_status_int = 0
                 device2_app=""
                 log.info('Device 2 has not updated its status for a long time. Reseted.')
             else:
                 log.info('Device 2 current status already is 0(offline) no change')
+            autoOffline()
 
 
 def reterr(code, message):
@@ -139,6 +158,7 @@ def style_css():
     return response
 
 
+#将在未来弃用
 @app.route('/query')
 def query():
     data.load()
@@ -160,6 +180,7 @@ def query():
     return log.format_dict(ret)
 
 
+#将在未来弃用
 @app.route('/get/status_list')
 def get_status_list():
     showip(request, '/get/status_list')
@@ -167,6 +188,7 @@ def get_status_list():
     return log.format_dict(stlst)
 
 
+#将在未来弃用
 @app.route('/setstatus', methods=['PUT'])
 def set_status():
     showip(request, '/setstatus')
@@ -201,8 +223,9 @@ def set_status():
 def set_device():
     global device1_status, device1_status_int, device1_app, device1_time_update, device2_status, device2_status_int, device2_app, device2_time_update
     showip(request, '/setdevice')
+    status = escape(request.args.get("status"))
     try:
-        status = int(escape(request.args.get("status")))
+        status = int(status)
     except:
         return reterr(
             code='bad request',
@@ -220,14 +243,15 @@ def set_device():
                 device1_status = "电脑在线: "
                 device1_status_int = 1
                 device1_app = escape(request.args.get("app"))
-                data.dset('status', 1)
             else:
                 return reterr(
                     code='bad request',
                     message='status cant bigger than 1'
                 )
-            
+
+            data.dset('status', status)
             device1_time_update = True
+            wakeup()
             log.info(f'set device1 status to "{device1_status}", app: "{device1_app}"')
         
         elif escape(request.args.get("device")) == "2":
@@ -241,14 +265,15 @@ def set_device():
                 device2_status = "手机在线: "
                 device2_status_int = 1
                 device2_app = escape(request.args.get("app"))
-                data.dset('status', 1)
             else:
                 return reterr(
                     code='bad request',
                     message='status cant bigger than 1'
                 )
             
+            data.dset('status', status)
             device2_time_update = True
+            wakeup()
             log.info(f'set device2 status to "{device2_status}", app: "{device2_app}"')
 
         else:
