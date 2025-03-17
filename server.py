@@ -27,7 +27,7 @@ def autoOffline():
         log.info('All devices are offline, set status to 0')
 
 
-def device1_timer():
+def device1Timer():
     global device1_status, device1_status_int, device1_app, device1_wait_time, device1_time_update
     log.info('[Device 1 Timer]: waiting server start')
     time.sleep(1)
@@ -52,7 +52,7 @@ def device1_timer():
                 log.info('Device 1 current status already is 0(offline) no change')
 
 
-def device2_timer():
+def device2Timer():
     global device2_status, device2_status_int, device2_app, device2_wait_time, device2_time_update
     log.info('[Device 2 Timer]: waiting server start')
     time.sleep(1)
@@ -267,7 +267,8 @@ def set_device():
 
 if __name__ == '__main__':
     data.load()
-    threading.Thread(target=autoReset).start()
+    threading.Thread(target=device1Timer).start()
+    threading.Thread(target=device2Timer).start()
     app.run(
         host=data.data['host'],
         port=data.data['port'],
