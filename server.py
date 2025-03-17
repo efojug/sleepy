@@ -49,6 +49,7 @@ def device1Timer():
                 device1_status_int = 0
                 device1_app=""
                 log.info('Device 1 has not updated its status for a long time. Reseted.')
+                device1_wait_time = 900
             else:
                 log.info('Device 1 current status already is 0(offline) no change')
 
@@ -75,6 +76,7 @@ def device2Timer():
                 device2_status_int = 0
                 device2_app=""
                 log.info('Device 2 has not updated its status for a long time. Reseted.')
+                device2_wait_time = 900
             else:
                 log.info('Device 2 current status already is 0(offline) no change')
 
@@ -225,7 +227,7 @@ def set_device():
                 )
             
             device1_time_update = True
-            log.info(f'set device1 status to "{device1_status}", app to "{device1_app}"')
+            log.info(f'set device1 status to "{device1_status}", app: "{device1_app}"')
         
         elif escape(request.args.get("device")) == "2":
             log.info(f'device2_status: {device2_status}, device2_app: "{device2_app}"')
@@ -246,7 +248,7 @@ def set_device():
                 )
             
             device2_time_update = True
-            log.info(f'set device2 status to "{device2_status}", app to "{device2_app}"')
+            log.info(f'set device2 status to "{device2_status}", app: "{device2_app}"')
 
         else:
             return reterr(
