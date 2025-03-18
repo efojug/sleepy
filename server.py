@@ -11,6 +11,7 @@ import time
 
 data = data_init()
 app = Flask(__name__)
+my_status = 0
 device1_wait_time, device2_wait_time = data.dget('device1_wait_time'), data.dget('device2_wait_time')
 device1_time_update, device2_time_update = False, False
 device1_status = "电脑离线"
@@ -26,15 +27,15 @@ current_mobile_background = "./static/mobilebgdaysleep.jpg"
 
 def autoSwitchBackground():
     global current_desktop_background, current_mobile_background
-    if data.dget('status') and (time.localtime().tm_hour > 19 or time.localtime().tm_hour < 7):
+    if my_status and (time.localtime().tm_hour > 19 or time.localtime().tm_hour < 7):
         #night online
         current_desktop_background = data.dget('desktopbgnight')
         current_mobile_background = data.dget('mobilebgnight')
-    elif not data.dget('status') and (time.localtime().tm_hour > 19 or time.localtime().tm_hour < 7):
+    elif not my_status and (time.localtime().tm_hour > 19 or time.localtime().tm_hour < 7):
         #night offline
         current_desktop_background = data.dget('desktopbgnightsleep')
         current_mobile_background = data.dget('mobilebgnightsleep')
-    elif data.dget('status') and 7 > time.localtime().tm_hour > 19:
+    elif my_status and 7 > time.localtime().tm_hour > 19:
         #day online
         current_desktop_background = data.dget('desktopbgday')
         current_mobile_background = data.dget('mobilebgday')
@@ -45,10 +46,10 @@ def autoSwitchBackground():
 
 
 def autoSleep():
-    global sleep
+    global my_status, sleep
     if not sleep:
         if not device1_status_int and not device2_status_int:
-            data.dset('status', 0)
+            my_status = 0
             log.info('All devices are offline, set status to 0')
             log.info('server sleeping...')
             sleep = True
@@ -148,7 +149,7 @@ def index():
     data.load()
     showip(request, '/')
     try:
-        stat = data.data['status_list'][data.data['status']]
+        stat = data.data['status_list'][my_status]
     except:
         stat = {
             'name': '未知',
@@ -182,7 +183,7 @@ def style_css():
 
 @app.route('/setdevice', methods=['PUT'])
 def set_device():
-    global device1_status, device1_status_int, device1_app, device1_time_update, device2_status, device2_status_int, device2_app, device2_time_update
+    global my_status, device1_status, device1_status_int, device1_app, device1_time_update, device2_status, device2_status_int, device2_app, device2_time_update
     showip(request, '/setdevice')
     status = escape(request.args.get("status"))
     try:
@@ -205,7 +206,7 @@ def set_device():
                 device1_status = "电脑在线: "
                 device1_status_int = 1
                 device1_app = escape(request.args.get("app"))
-                data.dset('status', 1)
+                my_status = 1
             else:
                 return reterr(
                     code='bad request',
@@ -228,7 +229,7 @@ def set_device():
                 device2_status = "手机在线: "
                 device2_status_int = 1
                 device2_app = escape(request.args.get("app"))
-                data.dset('status', 1)
+                my_status = 1
             else:
                 return reterr(
                     code='bad request',
