@@ -27,15 +27,15 @@ current_mobile_background = "./static/mobilebgdaysleep.jpg"
 
 def autoSwitchBackground():
     global current_desktop_background, current_mobile_background
-    if my_status and (time.localtime().tm_hour > 19 or time.localtime().tm_hour < 7):
+    if my_status and (time.localtime().tm_hour >= 19 or time.localtime().tm_hour < 7):
         #night online
         current_desktop_background = data.dget('desktopbgnight')
         current_mobile_background = data.dget('mobilebgnight')
-    elif not my_status and (time.localtime().tm_hour > 19 or time.localtime().tm_hour < 7):
+    elif not my_status and (time.localtime().tm_hour >= 19 or time.localtime().tm_hour < 7):
         #night offline
         current_desktop_background = data.dget('desktopbgnightsleep')
         current_mobile_background = data.dget('mobilebgnightsleep')
-    elif my_status and (7 < time.localtime().tm_hour < 19):
+    elif my_status and (7 <= time.localtime().tm_hour < 19):
         #day online
         current_desktop_background = data.dget('desktopbgday')
         current_mobile_background = data.dget('mobilebgday')
@@ -67,7 +67,8 @@ def device1Timer():
     while True:
 
         if sleep:
-            time.sleep(10)
+            time.sleep(15)
+            autoSwitchBackground()
             continue
 
         if device1_time_update:
@@ -99,7 +100,8 @@ def device2Timer():
     while True:
 
         if sleep:
-            time.sleep(10)
+            time.sleep(15)
+            autoSwitchBackground()
             continue
 
         if device2_time_update:
