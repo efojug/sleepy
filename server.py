@@ -180,6 +180,7 @@ def set_device():
                 device1_status = "电脑在线: "
                 device1_status_int = 1
                 device1_app = escape(request.args.get("app"))
+                data.dset('status', 1)
             else:
                 return reterr(
                     code='bad request',
@@ -202,6 +203,7 @@ def set_device():
                 device2_status = "手机在线: "
                 device2_status_int = 1
                 device2_app = escape(request.args.get("app"))
+                data.dset('status', 1)
             else:
                 return reterr(
                     code='bad request',
