@@ -21,8 +21,8 @@ device2_status = "手机离线"
 device2_status_int = 0
 device2_app = ""
 sleep = False
-current_desktop_background = "./static/desktopbgdaysleep.jpg"
-current_mobile_background = "./static/mobilebgdaysleep.jpg"
+current_desktop_background = ""
+current_mobile_background = ""
 
 
 def autoSwitchBackground():
@@ -264,6 +264,7 @@ def set_device():
 
 if __name__ == '__main__':
     data.load()
+    autoSwitchBackground()
     threading.Thread(target=device1Timer).start()
     threading.Thread(target=device2Timer).start()
     app.run(
