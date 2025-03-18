@@ -189,7 +189,7 @@ def set_device():
             data.dset('status', status)
             device1_time_update = True
             wakeup()
-            log.info(f'set device1 status to "{device1_status}", app: "{device1_app}"')
+            log.info(f'set device1 status to "{device1_status}", app: "{"ignored" if status == 0 else device1_app}"')
         
         elif escape(request.args.get("device")) == "2":
             log.info(f'device2_status: {device2_status}, device2_app: "{device2_app}"')
@@ -212,7 +212,7 @@ def set_device():
             data.dset('status', status)
             device2_time_update = True
             wakeup()
-            log.info(f'set device2 status to "{device2_status}", app: "{device2_app}"')
+            log.info(f'set device2 status to "{device2_status}", app: "{"ignored" if status == 0 else device2_app}"')
 
         else:
             return reterr(
