@@ -186,7 +186,6 @@ def set_device():
                     message='status cant bigger than 1'
                 )
 
-            data.dset('status', status)
             device1_time_update = True
             wakeup()
             log.info(f'set device1 status to "{device1_status}", app: "{"ignored" if status == 0 else device1_app}"')
@@ -209,7 +208,6 @@ def set_device():
                     message='status cant bigger than 1'
                 )
             
-            data.dset('status', status)
             device2_time_update = True
             wakeup()
             log.info(f'set device2 status to "{device2_status}", app: "{"ignored" if status == 0 else device2_app}"')
