@@ -6,6 +6,7 @@ from markupsafe import escape
 import json
 import time
 import threading
+import time
 
 
 data = data_init()
@@ -19,6 +20,29 @@ device2_status = "手机离线"
 device2_status_int = 0
 device2_app = ""
 sleep = False
+current_desktop_background = "./static/desktopbgdaysleep.jpg"
+current_mobile_background = "./static/mobilebgdaysleep.jpg"
+
+
+def autoSwitchBackground():
+    global current_desktop_background, current_mobile_background
+    if data.dget['status'] and (time.localtime().tm_hour > 19 or time.localtime().tm_hour < 7):
+        #night online
+        current_desktop_background = data.dget('desktopbgnight')
+        current_mobile_background = data.dget('mobilebgnight')
+    elif not data.dget['status'] and (time.localtime().tm_hour > 19 or time.localtime().tm_hour < 7):
+        #night offline
+        current_desktop_background = data.dget('desktopbgnightsleep')
+        current_mobile_background = data.dget('mobilebgnightsleep')
+    elif data.dget['status'] and 7 > time.localtime().tm_hour > 19:
+        #day online
+        current_desktop_background = data.dget('desktopbgday')
+        current_mobile_background = data.dget('mobilebgday')
+    else:
+        #day offline
+        current_desktop_background = data.dget('desktopbgdaysleep')
+        current_mobile_background = data.dget('mobilebgdaysleep')
+
 
 def autoSleep():
     global sleep
@@ -41,8 +65,9 @@ def device1Timer():
     time.sleep(1)
     while True:
 
+        autoSwitchBackground()
         if sleep:
-            time.sleep(5)
+            time.sleep(10)
             continue
 
         if device1_time_update:
@@ -72,8 +97,9 @@ def device2Timer():
     time.sleep(1)
     while True:
 
+        autoSwitchBackground()
         if sleep:
-            time.sleep(1)
+            time.sleep(10)
             continue
 
         if device2_time_update:
@@ -121,7 +147,6 @@ def showip(req, msg):
 def index():
     data.load()
     showip(request, '/')
-    info = data.data['info']
     try:
         stat = data.data['status_list'][data.data['status']]
     except:
@@ -132,7 +157,7 @@ def index():
         }
     return render_template(
         'index.html',
-        user=info['user'],
+        user=data.dget('user'),
         status_name=stat['name'],
         status_desc=stat['desc'],
         status_color=stat['color'],
@@ -147,9 +172,9 @@ def index():
 def style_css():
     response = make_response(render_template(
         'style.css',
-        desktopbg=data.data['info']['desktopbg'],
-        mobilebg=data.data['info']['mobilebg'],
-        alpha=data.data['info']['alpha']
+        desktopbg=current_desktop_background,
+        mobilebg=current_mobile_background,
+        alpha=data.dget('alpha')
     ))
     response.mimetype = 'text/css'
     return response
