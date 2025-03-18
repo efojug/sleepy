@@ -66,7 +66,6 @@ def device1Timer():
     time.sleep(1)
     while True:
 
-        autoSwitchBackground()
         if sleep:
             time.sleep(10)
             continue
@@ -90,6 +89,7 @@ def device1Timer():
             else:
                 log.info('Device 1 current status already is 0(offline) no change')
             autoSleep()
+            autoSwitchBackground()
 
 
 def device2Timer():
@@ -98,7 +98,6 @@ def device2Timer():
     time.sleep(1)
     while True:
 
-        autoSwitchBackground()
         if sleep:
             time.sleep(10)
             continue
@@ -122,6 +121,7 @@ def device2Timer():
             else:
                 log.info('Device 2 current status already is 0(offline) no change')
             autoSleep()
+            autoSwitchBackground()
 
 
 def reterr(code, message):
@@ -207,14 +207,14 @@ def set_device():
                 device1_status_int = 1
                 device1_app = escape(request.args.get("app"))
                 my_status = 1
+                device1_time_update = True
+                wakeup()
             else:
                 return reterr(
                     code='bad request',
                     message='status cant bigger than 1'
                 )
 
-            device1_time_update = True
-            wakeup()
             log.info(f'set device1 status to "{device1_status}", app: "{"ignored" if status == 0 else device1_app}"')
         
         elif escape(request.args.get("device")) == "2":
@@ -230,14 +230,14 @@ def set_device():
                 device2_status_int = 1
                 device2_app = escape(request.args.get("app"))
                 my_status = 1
+                device2_time_update = True
+                wakeup()
             else:
                 return reterr(
                     code='bad request',
                     message='status cant bigger than 1'
                 )
             
-            device2_time_update = True
-            wakeup()
             log.info(f'set device2 status to "{device2_status}", app: "{"ignored" if status == 0 else device2_app}"')
 
         else:
@@ -246,6 +246,7 @@ def set_device():
                 message='device num cant bigger than 3'
             )
         
+        autoSwitchBackground()
         ret = {
             'success': True,
             'code': 'OK'
