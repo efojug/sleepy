@@ -34,7 +34,7 @@ def wakeup():
     global sleep
     if sleep:
         sleep = False
-    log.info('server wakeup')
+        log.info('server wakeup')
 
 def device1Timer():
     global device1_status, device1_status_int, device1_app, device1_wait_time, device1_time_update
@@ -43,7 +43,7 @@ def device1Timer():
     while True:
 
         if sleep:
-            time.sleep(1)
+            time.sleep(5)
             continue
 
         if device1_time_update:
@@ -57,8 +57,7 @@ def device1Timer():
         else:
             device1_wait_time = data.dget('device1_wait_time')
             log.info('Telling server not to update the device 1 status for the next 900 seconds')
-            if data.dget('status'):
-                data.dset('status', 0)
+            if device1_status_int:
                 device1_status="电脑离线"
                 device1_status_int = 0
                 device1_app=""
@@ -89,8 +88,7 @@ def device2Timer():
         else:
             device2_wait_time = data.dget('device2_wait_time')
             log.info('Telling server not to update the device 2 status for the next 900 seconds')
-            if data.dget('status'):
-                data.dset('status', 0)
+            if device2_status_int:
                 device2_status="手机离线"
                 device2_status_int = 0
                 device2_app=""
@@ -158,67 +156,6 @@ def style_css():
     return response
 
 
-#将在未来弃用
-@app.route('/query')
-def query():
-    data.load()
-    showip(request, '/query')
-    st = data.data['status']
-    # stlst = data.data['status_list']
-    try:
-        stinfo = data.data['status_list'][st]
-    except:
-        stinfo = {
-            'status': st,
-            'name': '未知'
-        }
-    ret = {
-        'success': True,
-        'status': st,
-        'info': stinfo
-    }
-    return log.format_dict(ret)
-
-
-#将在未来弃用
-@app.route('/get/status_list')
-def get_status_list():
-    showip(request, '/get/status_list')
-    stlst = data.dget('status_list')
-    return log.format_dict(stlst)
-
-
-#将在未来弃用
-@app.route('/setstatus', methods=['PUT'])
-def set_status():
-    showip(request, '/setstatus')
-    status = escape(request.args.get("status"))
-    try:
-        status = int(status)
-    except:
-        return reterr(
-            code='bad request',
-            message="argument 'status' must be a number"
-        )
-    secret = escape(request.args.get("secret"))
-    log.info(f'status: {status}, secret: "{secret}"')
-    secret_real = data.dget('secret')
-    if secret == secret_real:
-        data.dset('status', status)
-        log.info(f'set status to {status} success')
-        ret = {
-            'success': True,
-            'code': 'OK',
-            'set_to': status
-        }
-        return log.format_dict(ret)
-    else:
-        return reterr(
-            code='not authorized',
-            message='invaild secret'
-        )
-    
-
 @app.route('/setdevice', methods=['PUT'])
 def set_device():
     global device1_status, device1_status_int, device1_app, device1_time_update, device2_status, device2_status_int, device2_app, device2_time_update
@@ -239,6 +176,7 @@ def set_device():
                 device1_status = "电脑离线"
                 device1_status_int = 0
                 device1_app = ""
+                autoOffline()
             elif status == 1:
                 device1_status = "电脑在线: "
                 device1_status_int = 1
@@ -261,6 +199,7 @@ def set_device():
                 device2_status = "手机离线"
                 device2_status_int = 0
                 device2_app = ""
+                autoOffline()
             elif status == 1:
                 device2_status = "手机在线: "
                 device2_status_int = 1
