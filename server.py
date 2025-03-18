@@ -35,7 +35,7 @@ def autoSwitchBackground():
         #night offline
         current_desktop_background = data.dget('desktopbgnightsleep')
         current_mobile_background = data.dget('mobilebgnightsleep')
-    elif my_status and 7 > time.localtime().tm_hour > 19:
+    elif my_status and (7 < time.localtime().tm_hour < 19):
         #day online
         current_desktop_background = data.dget('desktopbgday')
         current_mobile_background = data.dget('mobilebgday')
