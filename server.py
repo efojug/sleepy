@@ -26,15 +26,15 @@ current_mobile_background = "./static/mobilebgdaysleep.jpg"
 
 def autoSwitchBackground():
     global current_desktop_background, current_mobile_background
-    if data.dget['status'] and (time.localtime().tm_hour > 19 or time.localtime().tm_hour < 7):
+    if data.dget('status') and (time.localtime().tm_hour > 19 or time.localtime().tm_hour < 7):
         #night online
         current_desktop_background = data.dget('desktopbgnight')
         current_mobile_background = data.dget('mobilebgnight')
-    elif not data.dget['status'] and (time.localtime().tm_hour > 19 or time.localtime().tm_hour < 7):
+    elif not data.dget('status') and (time.localtime().tm_hour > 19 or time.localtime().tm_hour < 7):
         #night offline
         current_desktop_background = data.dget('desktopbgnightsleep')
         current_mobile_background = data.dget('mobilebgnightsleep')
-    elif data.dget['status'] and 7 > time.localtime().tm_hour > 19:
+    elif data.dget('status') and 7 > time.localtime().tm_hour > 19:
         #day online
         current_desktop_background = data.dget('desktopbgday')
         current_mobile_background = data.dget('mobilebgday')
