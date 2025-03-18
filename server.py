@@ -27,22 +27,32 @@ current_mobile_background = ""
 
 def autoSwitchBackground():
     global current_desktop_background, current_mobile_background
+
     if my_status and (time.localtime().tm_hour >= 19 or time.localtime().tm_hour < 7):
         #night online
         current_desktop_background = data.dget('desktopbgnight')
         current_mobile_background = data.dget('mobilebgnight')
-    elif not my_status and (time.localtime().tm_hour >= 19 or time.localtime().tm_hour < 7):
+        return
+
+    if not my_status and (time.localtime().tm_hour >= 19 or time.localtime().tm_hour < 7):
         #night offline
         current_desktop_background = data.dget('desktopbgnightsleep')
         current_mobile_background = data.dget('mobilebgnightsleep')
-    elif my_status and (7 <= time.localtime().tm_hour < 19):
+        return
+
+    if my_status and (7 <= time.localtime().tm_hour < 19):
         #day online
         current_desktop_background = data.dget('desktopbgday')
         current_mobile_background = data.dget('mobilebgday')
-    else:
+        return
+
+    if not my_status and (7 <= time.localtime().tm_hour < 19):
         #day offline
         current_desktop_background = data.dget('desktopbgdaysleep')
         current_mobile_background = data.dget('mobilebgdaysleep')
+        return
+    
+    log.error('[Auto Switch Background] error:\n status: {my_status}, hour: ' + time.localtime().tm_hour)
 
 
 def autoSleep():
@@ -50,7 +60,7 @@ def autoSleep():
     if not sleep:
         if not device1_status_int and not device2_status_int:
             my_status = 0
-            log.info('All devices are offline, set status to 0')
+            log.info('[Auto Sleep] All devices are offline, set status to 0')
             log.info('server sleeping...')
             sleep = True
 
@@ -197,7 +207,7 @@ def set_device():
         )
     if escape(request.args.get("secret")) == data.dget('secret'):
         if escape(request.args.get("device")) == "1":
-            log.info(f'device1_status: "{device1_status}", device1_app: "{device1_app}"')
+            log.info(f'device1_status: {device1_status}, device1_app: "{device1_app}"')
 
             if status == 0:
                 device1_status = "电脑离线"
@@ -217,7 +227,7 @@ def set_device():
                     message='status cant bigger than 1'
                 )
 
-            log.info(f'set device1 status to "{device1_status}", app: "{"ignored" if status == 0 else device1_app}"')
+            log.info(f'set device1 status to {device1_status}, app: {"ignored" if status == 0 else device1_app}')
         
         elif escape(request.args.get("device")) == "2":
             log.info(f'device2_status: {device2_status}, device2_app: "{device2_app}"')
@@ -240,7 +250,7 @@ def set_device():
                     message='status cant bigger than 1'
                 )
             
-            log.info(f'set device2 status to "{device2_status}", app: "{"ignored" if status == 0 else device2_app}"')
+            log.info(f'set device2 status to {device2_status}, app: {"ignored" if status == 0 else device2_app}')
 
         else:
             return reterr(
