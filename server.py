@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # coding: utf-8
 import utils as log
 from data import data as data_init
@@ -21,10 +20,10 @@ device2_status_int = 0
 device2_app = ""
 sleep = False
 
-def autoOffline():
+def autoSleep():
     global sleep
     if not sleep:
-        if not data.dget('status') and not device1_status_int and not device2_status_int:
+        if not device1_status_int and not device2_status_int:
             data.dset('status', 0)
             log.info('All devices are offline, set status to 0')
             log.info('server sleeping...')
@@ -64,7 +63,7 @@ def device1Timer():
                 log.info('Device 1 has not updated its status for a long time. Reseted.')
             else:
                 log.info('Device 1 current status already is 0(offline) no change')
-            autoOffline()
+            autoSleep()
 
 
 def device2Timer():
@@ -95,7 +94,7 @@ def device2Timer():
                 log.info('Device 2 has not updated its status for a long time. Reseted.')
             else:
                 log.info('Device 2 current status already is 0(offline) no change')
-            autoOffline()
+            autoSleep()
 
 
 def reterr(code, message):
@@ -176,7 +175,7 @@ def set_device():
                 device1_status = "电脑离线"
                 device1_status_int = 0
                 device1_app = ""
-                autoOffline()
+                autoSleep()
             elif status == 1:
                 device1_status = "电脑在线: "
                 device1_status_int = 1
@@ -199,7 +198,7 @@ def set_device():
                 device2_status = "手机离线"
                 device2_status_int = 0
                 device2_app = ""
-                autoOffline()
+                autoSleep()
             elif status == 1:
                 device2_status = "手机在线: "
                 device2_status_int = 1
