@@ -224,7 +224,7 @@ def set_device():
             else:
                 return reterr(
                     code='bad request',
-                    message='status cant bigger than 1'
+                    message='status not found'
                 )
 
             log.info(f'set device1 status to {device1_status}, app: {"ignored" if status == 0 else device1_app}')
