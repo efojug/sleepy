@@ -96,7 +96,7 @@ def device1Timer():
                 device1_status="电脑离线"
                 device1_status_int = 0
                 device1_app=""
-                log.info('Device 1 has not updated its status for a long time. Reseted.')
+                log.info('Device 1 has not update status for long time. Reseted.')
             else:
                 log.info('Device 1 current status already is 0(offline) no change')
             autoSleep()
@@ -129,7 +129,7 @@ def device2Timer():
                 device2_status="手机离线"
                 device2_status_int = 0
                 device2_app=""
-                log.info('Device 2 has not updated its status for a long time. Reseted.')
+                log.info('Device 2 has not update status for long time. Reseted.')
             else:
                 log.info('Device 2 current status already is 0(offline) no change')
             autoSleep()
