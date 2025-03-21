@@ -193,20 +193,23 @@ def style_css():
     return response
 
 
-@app.route('/setdevice', methods=['PUT'])
+@app.route('/setdevice', methods=['POST'])
 def set_device():
     global my_status, device1_status, device1_status_int, device1_app, device1_time_update, device2_status, device2_status_int, device2_app, device2_time_update
     showip(request, '/setdevice')
-    status = escape(request.args.get("status"))
+    request_data=request.get_json()
+    print(request_data)
+    status = request_data["status"]
     try:
-        status = int(status)
+        int(request_data["status"])
+        int(request_data["device"])
     except:
         return reterr(
             code='bad request',
-            message="argument 'status' must be a number"
+            message="argument 'status' or 'device' must be a number"
         )
-    if escape(request.args.get("secret")) == data.dget('secret'):
-        if escape(request.args.get("device")) == "1":
+    if request_data["secret"] == data.dget('secret'):
+        if request_data["device"] == 1:
             log.info(f'device1_status: {device1_status}, device1_app: "{device1_app}"')
 
             if status == 0:
@@ -217,7 +220,7 @@ def set_device():
             elif status == 1:
                 device1_status = "电脑在线: "
                 device1_status_int = 1
-                device1_app = escape(request.args.get("app"))
+                device1_app = request_data["app"]
                 my_status = 1
                 device1_time_update = True
                 wakeup()
@@ -229,7 +232,7 @@ def set_device():
 
             log.info(f'set device1 status to {device1_status}, app: {"ignored" if status == 0 else device1_app}')
         
-        elif escape(request.args.get("device")) == "2":
+        elif request_data["device"] == 2:
             log.info(f'device2_status: {device2_status}, device2_app: "{device2_app}"')
 
             if status == 0:
@@ -240,7 +243,7 @@ def set_device():
             elif status == 1:
                 device2_status = "手机在线: "
                 device2_status_int = 1
-                device2_app = escape(request.args.get("app"))
+                device2_app = request_data["app"]
                 my_status = 1
                 device2_time_update = True
                 wakeup()
@@ -255,7 +258,7 @@ def set_device():
         else:
             return reterr(
                 code='bad request',
-                message='device num cant bigger than 3'
+                message='device number not avaliable'
             )
         
         autoSwitchBackground()
