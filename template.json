@@ -1,0 +1,33 @@
+{
+    "version": 2,
+    "debug": false,
+    "host": "0.0.0.0",
+    "port": 9010,
+    "secret": "MySecret",
+    "device1_wait_time": 900,
+    "device2_wait_time": 900,
+    "user": "efojug",
+    "desktopbgday": "./static/desktopbgday.jpg",
+    "desktopbgdaysleep": "./static/desktopbgdaysleep.jpg",
+    "desktopbgnight": "./static/desktopbgnight.jpg",
+    "desktopbgnightsleep": "./static/desktopbgnightsleep.jpg",
+    "mobilebgday": "./static/mobilebgday.png",
+    "mobilebgdaysleep": "./static/mobilebgdaysleep.png",
+    "mobilebgnight": "./static/mobilebgnight.jpg",
+    "mobilebgnightsleep": "./static/mobilebgnightsleep.png",
+    "alpha": 0.85,
+    "status_list": [
+        {
+            "id": 0,
+            "name": "好像似了",
+            "desc": "睡似了或其他原因不在线",
+            "color": "sleeping"
+        },
+        {
+            "id": 1,
+            "name": "看起来应该还活着",
+            "desc": "你可以尝试用任何方式联系她",
+            "color": "awake"
+        }
+    ]
+}

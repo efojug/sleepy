@@ -201,7 +201,7 @@ def set_device():
     print(request_data)
     status = request_data["status"]
     try:
-        int(request_data["status"])
+        status = int(status)
         int(request_data["device"])
     except:
         return reterr(
@@ -258,7 +258,7 @@ def set_device():
         else:
             return reterr(
                 code='bad request',
-                message='device number not avaliable'
+                message='device num cant bigger than 3'
             )
         
         autoSwitchBackground()
