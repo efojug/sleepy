@@ -16,18 +16,19 @@
     "mobilebgnight": "./static/mobilebgnight.jpg",
     "mobilebgnightsleep": "./static/mobilebgnightsleep.png",
     "alpha": 0.85,
+    "auto_refresh_time": 45,
     "status_list": [
         {
             "id": 0,
             "name": "好像似了",
             "desc": "睡似了或其他原因不在线",
-            "color": "sleeping"
+            "color": "102, 102, 102"
         },
         {
             "id": 1,
             "name": "看起来应该还活着",
             "desc": "你可以尝试用任何方式联系她",
-            "color": "awake"
+            "color": "43, 164, 113"
         }
     ]
 }

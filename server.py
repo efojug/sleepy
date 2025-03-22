@@ -1,9 +1,7 @@
 # coding: utf-8
 import utils as log
 from data import data as data_init
-from flask import Flask, render_template, request, url_for, redirect, flash, make_response
-from markupsafe import escape
-import json
+from flask import Flask, render_template, request, make_response, jsonify
 import time
 import threading
 import time
@@ -23,7 +21,6 @@ device2_app = ""
 sleep = False
 current_desktop_background = ""
 current_mobile_background = ""
-
 
 def autoSwitchBackground():
     global current_desktop_background, current_mobile_background
@@ -166,7 +163,7 @@ def index():
         stat = {
             'name': '未知',
             'desc': '未知的标识符，可能是配置问题。',
-            'color': 'error'
+            'color': '255, 0, 0'
         }
     return render_template(
         'index.html',
@@ -177,9 +174,26 @@ def index():
         device1_status=device1_status,
         device1_app=device1_app,
         device2_status=device2_status,
-        device2_app=device2_app
+        device2_app=device2_app,
+        auto_refresh_time=data.dget('auto_refresh_time')
     )
 
+@app.route('/get_data')
+def get_data():
+    try:
+        stat = data.data['status_list'][my_status]
+    except:
+        log.error("auto refresh failed!")
+
+    return jsonify({
+        "status_name": stat['name'],
+        "device1_status": device1_status,
+        "device1_app": device1_app,
+        "device2_status": device2_status,
+        "device2_app": device2_app,
+        "status_desc": stat['desc'],
+        "status_color": stat['color']
+    })
 
 @app.route('/style.css')
 def style_css():

@@ -52,17 +52,3 @@ body, html {
   transform: translateY(-5px);
   box-shadow: 0 12px 40px rgba(206, 140, 210, 0.2);
 }
-
-/* 以下为各种状态的颜色 */
-
-.sleeping {
-    color: rgb(102, 102, 102);
-}
-
-.awake {
-    color: rgb(43, 164, 113);
-}
-
-.error {
-    color: rgb(213, 73, 65);
-}

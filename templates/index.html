@@ -9,35 +9,72 @@
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 </head>
 
-<!-- url_for('static', filename='') -->
-
 <body>
     <div class="card">
         <h1 style="font-size: 2em;"><ruby>似<rt>sǐ</rt></ruby>了吗?</h1>
 
         <div style="height: 20px;"></div>
 
-        <span>{{ user }}'s Status:<br><span id="status" style="font-size: 1.2em;">{{ status_name }}</span></span>
-        <br>
-        
-        <span id="status">{{ device1_status }}<span>{{ device1_app }}</span></span>
-        <br>
-        <span id="status">{{ device2_status }}<span>{{ device2_app }}</span></span>
+        <span>{{ user }}'s Status:
+            <div style="height: 5px;"></div>
+            <span id="status" style="font-size: 125%; color: rgb({{ status_color }})">{{ status_name }}</span>
+        </span>
+
+        <div style="height: 20px;"></div>
+
+        <span id="device1_status">{{ device1_status }}</span>
+        <span id="device1_app">{{ device1_app }}</span>
 
         <br>
-        <span id="additional-info" style="font-size: 1em;">{{ status_desc }}</span>
 
-        <div style="height: 10px;"></div>
-        {{ more_text | safe }}
-        <!-- <a>ps: 如果长时间无响应，可能是你的网络问题，或服务器无法响应等</a> -->
+        <span id="device2_status">{{ device2_status }}</span>
+        <span id="device2_app">{{ device2_app }}</span>
+
+        <div style="height: 20px;"></div>
+
+        <span id="status_desc" style="font-size: 90%;">{{ status_desc }}</span>
+
         <div style="height: 40px;"></div>
+
         <span>你可以通过这个页面看到她的在线状态</span>
+
+        <br>
+
+        <span style="font-size: 80%;"><span id="countdown">45</span> 秒后刷新</span>
+
     </div>
-    <!-- <script src="assets/query.js"></script> -->
+
     <script>
-        const statusElement = document.getElementById('status');
-        statusElement.classList.add('{{ status_color }}');
+        const time = {{ auto_refresh_time }};
+        let countdownTime = time;
+
+        const countdownElement = document.getElementById('countdown');
+
+        updateCountdown()
+
+        function updateCountdown() {
+            countdownElement.innerText = countdownTime;
+
+            if (countdownTime > 0) {
+                countdownTime--;
+            } else {
+                fetch('/get_data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('status').innerText = data.status_name;
+                    document.getElementById('status').style.color = `rgb(${data.status_color})`;
+                    document.getElementById('device1_status').innerText = data.device1_status;
+                    document.getElementById('device1_app').innerText = data.device1_app;
+                    document.getElementById('device2_status').innerText = data.device2_status;
+                    document.getElementById('device2_app').innerText = data.device2_app;
+                    document.getElementById('status_desc').innerText = data.status_desc;
+                })
+                .catch(error => console.error('获取数据出错:', error));
+                countdownTime =time;
+            }
+        }
+
+        setInterval(updateCountdown, 1000);
     </script>
 </body>
-
 </html>
