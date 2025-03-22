@@ -218,18 +218,18 @@ def set_device():
     request_data=request.get_json()
     print(request_data)
     status = request_data["status"]
+    device = request_data["device"]
     try:
         status = int(status)
-        int(request_data["device"])
+        device = int(device)
     except:
         return reterr(
             code='bad request',
             message="argument 'status' or 'device' must be a number"
         )
     if request_data["secret"] == data.dget('secret'):
-        if request_data["device"] == 1:
-            log.info(f'current device1 status: {device1_status}, app: "{device1_app}"')
-
+        if device == 1:
+            log.info(f'device1 status: {device1_status_int} => {status}, app: {device1_app} => {"ignored" if status else request_data["app"]}')
             if status == 0:
                 device1_status = "电脑离线"
                 device1_status_int = 0
@@ -247,12 +247,9 @@ def set_device():
                     code='bad request',
                     message='status not found'
                 )
-
-            log.info(f'set device1 status to {device1_status}, app: {"ignored" if status == 0 else device1_app}')
         
-        elif request_data["device"] == 2:
-            log.info(f'current device2 status: {device2_status}, device2 app: "{device2_app}"')
-
+        elif device == 2:
+            log.info(f'device2 status: {device2_status_int} => {status}, app: {device2_app} => {"ignored" if status else request_data["app"]}')
             if status == 0:
                 device2_status = "手机离线"
                 device2_status_int = 0
@@ -270,8 +267,6 @@ def set_device():
                     code='bad request',
                     message='status cant bigger than 1'
                 )
-            
-            log.info(f'set device2 status to {device2_status}, app: {"ignored" if status == 0 else device2_app}')
 
         else:
             return reterr(
