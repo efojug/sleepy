@@ -15,7 +15,7 @@
     "mobilebgdaysleep": "./static/mobilebgdaysleep.png",
     "mobilebgnight": "./static/mobilebgnight.jpg",
     "mobilebgnightsleep": "./static/mobilebgnightsleep.png",
-    "alpha": 0.85,
+    "alpha": 0.7,
     "auto_refresh_time": 45,
     "status_list": [
         {
