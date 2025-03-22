@@ -42,6 +42,10 @@
 
         <span style="font-size: 80%;"><span id="countdown">45</span> 秒后刷新</span>
 
+        <br>
+
+        <span style="font-size: 80%; font-style: italic;">上次更新时间：<span id="last_update_time">{{ last_update_time }}</span> </span>
+
     </div>
 
     <script>
@@ -68,6 +72,7 @@
                     document.getElementById('device2_status').innerText = data.device2_status;
                     document.getElementById('device2_app').innerText = data.device2_app;
                     document.getElementById('status_desc').innerText = data.status_desc;
+                    document.getElementById('last_update_time').innerText = data.last_update_time;
                 })
                 .catch(error => console.error('获取数据出错:', error));
                 countdownTime =time;

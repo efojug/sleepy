@@ -5,6 +5,7 @@ from flask import Flask, render_template, request, make_response, jsonify
 import time
 import threading
 import time
+from datetime import datetime
 
 
 data = data_init()
@@ -21,6 +22,7 @@ device2_app = ""
 sleep = False
 current_desktop_background = ""
 current_mobile_background = ""
+last_update_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 def autoSwitchBackground():
     global current_desktop_background, current_mobile_background
@@ -175,6 +177,7 @@ def index():
         device1_app=device1_app,
         device2_status=device2_status,
         device2_app=device2_app,
+        last_update_time=last_update_time,
         auto_refresh_time=data.dget('auto_refresh_time')
     )
 
@@ -192,7 +195,8 @@ def get_data():
         "device2_status": device2_status,
         "device2_app": device2_app,
         "status_desc": stat['desc'],
-        "status_color": stat['color']
+        "status_color": stat['color'],
+        "last_update_time": last_update_time
     })
 
 @app.route('/style.css')
@@ -209,7 +213,7 @@ def style_css():
 
 @app.route('/setdevice', methods=['POST'])
 def set_device():
-    global my_status, device1_status, device1_status_int, device1_app, device1_time_update, device2_status, device2_status_int, device2_app, device2_time_update
+    global my_status, device1_status, device1_status_int, device1_app, device1_time_update, device2_status, device2_status_int, device2_app, device2_time_update, last_update_time
     showip(request, '/setdevice')
     request_data=request.get_json()
     print(request_data)
@@ -224,7 +228,7 @@ def set_device():
         )
     if request_data["secret"] == data.dget('secret'):
         if request_data["device"] == 1:
-            log.info(f'device1_status: {device1_status}, device1_app: "{device1_app}"')
+            log.info(f'current device1 status: {device1_status}, app: "{device1_app}"')
 
             if status == 0:
                 device1_status = "电脑离线"
@@ -247,7 +251,7 @@ def set_device():
             log.info(f'set device1 status to {device1_status}, app: {"ignored" if status == 0 else device1_app}')
         
         elif request_data["device"] == 2:
-            log.info(f'device2_status: {device2_status}, device2_app: "{device2_app}"')
+            log.info(f'current device2 status: {device2_status}, device2 app: "{device2_app}"')
 
             if status == 0:
                 device2_status = "手机离线"
@@ -275,6 +279,7 @@ def set_device():
                 message='device num cant bigger than 3'
             )
         
+        last_update_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         autoSwitchBackground()
         ret = {
             'success': True,
