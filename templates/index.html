@@ -51,31 +51,38 @@
     <script>
         const time = {{ auto_refresh_time }};
         let countdownTime = time;
+        let pauseTimer = false;
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) pauseTimer = true;
+            else pauseTimer = false;
+        });
 
         const countdownElement = document.getElementById('countdown');
 
         updateCountdown()
 
         function updateCountdown() {
-            countdownElement.innerText = countdownTime;
+            if (!pauseTimer) {
+                countdownElement.innerText = countdownTime;
 
-            if (countdownTime > 0) {
-                countdownTime--;
-            } else {
-                fetch('/get_data')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('status').innerText = data.status_name;
-                    document.getElementById('status').style.color = `rgb(${data.status_color})`;
-                    document.getElementById('device1_status').innerText = data.device1_status;
-                    document.getElementById('device1_app').innerText = data.device1_app;
-                    document.getElementById('device2_status').innerText = data.device2_status;
-                    document.getElementById('device2_app').innerText = data.device2_app;
-                    document.getElementById('status_desc').innerText = data.status_desc;
-                    document.getElementById('last_update_time').innerText = data.last_update_time;
-                })
-                .catch(error => console.error('获取数据出错:', error));
-                countdownTime =time;
+                if (countdownTime > 0) countdownTime--;
+                else {
+                    fetch('/get_data')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('status').innerText = data.status_name;
+                        document.getElementById('status').style.color = `rgb(${data.status_color})`;
+                        document.getElementById('device1_status').innerText = data.device1_status;
+                        document.getElementById('device1_app').innerText = data.device1_app;
+                        document.getElementById('device2_status').innerText = data.device2_status;
+                        document.getElementById('device2_app').innerText = data.device2_app;
+                        document.getElementById('status_desc').innerText = data.status_desc;
+                        document.getElementById('last_update_time').innerText = data.last_update_time;
+                    })
+                    .catch(error => console.error('获取数据出错:', error));
+                    countdownTime =time;
+                }
             }
         }
 
