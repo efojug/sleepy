@@ -229,7 +229,7 @@ def set_device():
         )
     if request_data["secret"] == data.dget('secret'):
         if device == 1:
-            log.info(f'device1 status: {device1_status_int} --> {status}, app: {device1_app} --> {request_data["app"] if status else "ignored"}')
+            log.info(f'device1 status: {device1_status_int} -> {status}, app: {device1_app} -> {request_data["app"] if status else "ignored"}')
             if status == 0:
                 device1_status = "电脑离线"
                 device1_status_int = 0
@@ -249,7 +249,7 @@ def set_device():
                 )
         
         elif device == 2:
-            log.info(f'device2 status: {device2_status_int} --> {status}, app: {device2_app} --> {request_data["app"] if status else "ignored"}')
+            log.info(f'device2 status: {device2_status_int} -> {status}, app: {device2_app} -> {request_data["app"] if status else "ignored"}')
             if status == 0:
                 device2_status = "手机离线"
                 device2_status_int = 0
