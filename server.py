@@ -11,14 +11,17 @@ from datetime import datetime
 data = data_init()
 app = Flask(__name__)
 my_status = 0
-device1_wait_time, device2_wait_time = data.dget('device1_wait_time'), data.dget('device2_wait_time')
-device1_time_update, device2_time_update = False, False
+device1_wait_time, device2_wait_time, device3_wait_time = data.dget('device1_wait_time'), data.dget('device2_wait_time'), data.dget('device3_wait_time')
+device1_time_update, device2_time_update, device3_time_update = False, False, False
 device1_status = "电脑离线"
 device1_status_int = 0
 device1_app = ""
-device2_status = "手机离线"
+device2_status = "红米K50 Ultra离线"
 device2_status_int = 0
 device2_app = ""
+device3_status = "一加Ace Pro离线"
+device3_status_int = 0
+device3_app = ""
 sleep = False
 current_desktop_background = ""
 current_mobile_background = ""
@@ -57,9 +60,9 @@ def autoSwitchBackground():
 def autoSleep():
     global my_status, sleep
     if not sleep:
-        if not device1_status_int and not device2_status_int:
+        if not device1_status_int and not device2_status_int and not device3_status_int:
             my_status = 0
-            log.info('[Auto Sleep] All devices are offline, set status to 0')
+            log.info('All devices are offline, set status to 0')
             log.info('server sleeping...')
             sleep = True
 
@@ -125,12 +128,44 @@ def device2Timer():
             device2_wait_time = data.dget('device2_wait_time')
             log.info('Telling server not to update the device 2 status for the next 900 seconds')
             if device2_status_int:
-                device2_status="手机离线"
+                device2_status="红米K50 Ultra离线"
                 device2_status_int = 0
                 device2_app=""
                 log.info('Device 2 has not update status for long time. Reseted.')
             else:
                 log.info('Device 2 current status already is 0(offline) no change')
+            autoSleep()
+            autoSwitchBackground()
+
+def device3Timer():
+    global device3_status, device3_status_int, device3_app, device3_wait_time, device3_time_update
+    log.info('[Device 3 Timer]: waiting server start')
+    time.sleep(1)
+    while True:
+
+        if sleep:
+            time.sleep(15)
+            autoSwitchBackground()
+            continue
+
+        if device3_time_update:
+            device3_time_update = False
+            log.info('detected device 3 status changed. reset timer')
+            device3_wait_time = data.dget('device3_wait_time')
+
+        if device3_wait_time > 0:
+            time.sleep(1)
+            device3_wait_time -= 1
+        else:
+            device3_wait_time = data.dget('device3_wait_time')
+            log.info('Telling server not to update the device 3 status for the next 900 seconds')
+            if device3_status_int:
+                device3_status="红米K50 Ultra离线"
+                device3_status_int = 0
+                device3_app=""
+                log.info('Device 3 has not update status for long time. Reseted.')
+            else:
+                log.info('Device 3 current status already is 0(offline) no change')
             autoSleep()
             autoSwitchBackground()
 
@@ -177,6 +212,8 @@ def index():
         device1_app=device1_app,
         device2_status=device2_status,
         device2_app=device2_app,
+        device3_status=device3_status,
+        device3_app=device3_app,
         last_update_time=last_update_time,
         auto_refresh_time=data.dget('auto_refresh_time')
     )
@@ -194,6 +231,8 @@ def get_data():
         "device1_app": device1_app,
         "device2_status": device2_status,
         "device2_app": device2_app,
+        "device3_status": device3_status,
+        "device3_app": device3_app,
         "status_desc": stat['desc'],
         "status_color": stat['color'],
         "last_update_time": last_update_time
@@ -213,7 +252,7 @@ def style_css():
 
 @app.route('/setdevice', methods=['POST'])
 def set_device():
-    global my_status, device1_status, device1_status_int, device1_app, device1_time_update, device2_status, device2_status_int, device2_app, device2_time_update, last_update_time
+    global my_status, device1_status, device1_status_int, device1_app, device1_time_update, device2_status, device2_status_int, device2_app, device2_time_update, device3_status, device3_status_int, device3_app, device3_time_update, last_update_time
     showip(request, '/setdevice')
     request_data=request.get_json()
     print(request_data)
@@ -251,16 +290,36 @@ def set_device():
         elif device == 2:
             log.info(f'device2 status: {device2_status_int} -> {status}, app: {device2_app} -> {request_data["app"] if status else "ignored"}')
             if status == 0:
-                device2_status = "手机离线"
+                device2_status = "红米K50 Ultra离线"
                 device2_status_int = 0
                 device2_app = ""
                 autoSleep()
             elif status == 1:
-                device2_status = "手机在线: "
+                device2_status = "红米K50 Ultra在线: "
                 device2_status_int = 1
                 device2_app = request_data["app"]
                 my_status = 1
                 device2_time_update = True
+                wakeup()
+            else:
+                return reterr(
+                    code='bad request',
+                    message='status cant bigger than 1'
+                )
+
+        elif device == 3:
+            log.info(f'device3 status: {device3_status_int} -> {status}, app: {device3_app} -> {request_data["app"] if status else "ignored"}')
+            if status == 0:
+                device3_status = "红米K50 Ultra离线"
+                device3_status_int = 0
+                device3_app = ""
+                autoSleep()
+            elif status == 1:
+                device3_status = "一加Ace Pro在线: "
+                device3_status_int = 1
+                device3_app = request_data["app"]
+                my_status = 1
+                device3_time_update = True
                 wakeup()
             else:
                 return reterr(
@@ -294,6 +353,7 @@ if __name__ == '__main__':
     autoSwitchBackground()
     threading.Thread(target=device1Timer).start()
     threading.Thread(target=device2Timer).start()
+    threading.Thread(target=device3Timer).start()
     app.run(
         host=data.data['host'],
         port=data.data['port'],

@@ -6,6 +6,7 @@
     "secret": "MySecret",
     "device1_wait_time": 900,
     "device2_wait_time": 900,
+    "device3_wait_time": 900,
     "user": "efojug",
     "desktopbgday": "./static/desktopbgday.jpg",
     "desktopbgdaysleep": "./static/desktopbgdaysleep.jpg",

@@ -30,6 +30,11 @@
         <span id="device2_status">{{ device2_status }}</span>
         <span id="device2_app">{{ device2_app }}</span>
 
+        <br>
+
+        <span id="device2_status">{{ device3_status }}</span>
+        <span id="device2_app">{{ device3_app }}</span>
+
         <div style="height: 20px;"></div>
 
         <span id="status_desc" style="font-size: 90%;">{{ status_desc }}</span>
@@ -77,6 +82,8 @@
                         document.getElementById('device1_app').innerText = data.device1_app;
                         document.getElementById('device2_status').innerText = data.device2_status;
                         document.getElementById('device2_app').innerText = data.device2_app;
+                        document.getElementById('device3_status').innerText = data.device2_status;
+                        document.getElementById('device3_app').innerText = data.device2_app;
                         document.getElementById('status_desc').innerText = data.status_desc;
                         document.getElementById('last_update_time').innerText = data.last_update_time;
                     })
