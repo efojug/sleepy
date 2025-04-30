@@ -310,7 +310,7 @@ def set_device():
         elif device == 3:
             log.info(f'device3 status: {device3_status_int} -> {status}, app: {device3_app} -> {request_data["app"] if status else "ignored"}')
             if status == 0:
-                device3_status = "红米K50 Ultra离线"
+                device3_status = "一加Ace Pro离线"
                 device3_status_int = 0
                 device3_app = ""
                 autoSleep()
