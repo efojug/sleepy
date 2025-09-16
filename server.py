@@ -13,13 +13,13 @@ app = Flask(__name__)
 my_status = 0
 device1_wait_time, device2_wait_time, device3_wait_time = data.dget('device1_wait_time'), data.dget('device2_wait_time'), data.dget('device3_wait_time')
 device1_time_update, device2_time_update, device3_time_update = False, False, False
-device1_status = "电脑离线"
+device1_status = f"{data.dget("device1_name")}离线"
 device1_status_int = 0
 device1_app = ""
-device2_status = "红米K50 Ultra离线"
+device2_status = f"{data.dget("device2_name")}离线"
 device2_status_int = 0
 device2_app = ""
-device3_status = "一加Ace Pro离线"
+device3_status = f"{data.dget("device3_name")}离线"
 device3_status_int = 0
 device3_app = ""
 sleep = False
@@ -67,8 +67,9 @@ def autoSleep():
             sleep = True
 
 def wakeup():
-    global sleep
+    global sleep, my_status
     if sleep:
+        my_status = 1
         sleep = False
         log.info('server wakeup')
 
@@ -78,7 +79,7 @@ def device1Timer():
     time.sleep(1)
     while True:
 
-        if sleep:
+        if not device1_status_int:
             time.sleep(15)
             autoSwitchBackground()
             continue
@@ -93,10 +94,9 @@ def device1Timer():
             device1_wait_time -= 1
         else:
             device1_wait_time = data.dget('device1_wait_time')
-            log.info('Telling server not to update the device 1 status for the next 900 seconds')
             if device1_status_int:
-                device1_status="电脑离线"
-                device1_status_int = 0
+                device1_status=f"{data.dget("device1_name")}离线"
+                device1_status_int=0
                 device1_app=""
                 log.info('Device 1 has not update status for long time. Reseted.')
             else:
@@ -111,7 +111,7 @@ def device2Timer():
     time.sleep(1)
     while True:
 
-        if sleep:
+        if not device2_status_int:
             time.sleep(15)
             autoSwitchBackground()
             continue
@@ -126,10 +126,9 @@ def device2Timer():
             device2_wait_time -= 1
         else:
             device2_wait_time = data.dget('device2_wait_time')
-            log.info('Telling server not to update the device 2 status for the next 900 seconds')
             if device2_status_int:
-                device2_status="红米K50 Ultra离线"
-                device2_status_int = 0
+                device2_status=f"{data.dget("device2_name")}离线"
+                device2_status_int=0
                 device2_app=""
                 log.info('Device 2 has not update status for long time. Reseted.')
             else:
@@ -143,7 +142,7 @@ def device3Timer():
     time.sleep(1)
     while True:
 
-        if sleep:
+        if not device3_status_int:
             time.sleep(15)
             autoSwitchBackground()
             continue
@@ -158,10 +157,9 @@ def device3Timer():
             device3_wait_time -= 1
         else:
             device3_wait_time = data.dget('device3_wait_time')
-            log.info('Telling server not to update the device 3 status for the next 900 seconds')
             if device3_status_int:
-                device3_status="红米K50 Ultra离线"
-                device3_status_int = 0
+                device3_status=f"{data.dget("device3_name")}离线"
+                device3_status_int=0
                 device3_app=""
                 log.info('Device 3 has not update status for long time. Reseted.')
             else:
@@ -252,7 +250,7 @@ def style_css():
 
 @app.route('/setdevice', methods=['POST'])
 def set_device():
-    global my_status, device1_status, device1_status_int, device1_app, device1_time_update, device2_status, device2_status_int, device2_app, device2_time_update, device3_status, device3_status_int, device3_app, device3_time_update, last_update_time
+    global device1_status, device1_status_int, device1_app, device1_time_update, device2_status, device2_status_int, device2_app, device2_time_update, device3_status, device3_status_int, device3_app, device3_time_update, last_update_time
     showip(request, '/setdevice')
     request_data=request.get_json()
     print(request_data)
@@ -270,15 +268,14 @@ def set_device():
         if device == 1:
             log.info(f'device1 status: {device1_status_int} -> {status}, app: {device1_app} -> {request_data["app"] if status else "ignored"}')
             if status == 0:
-                device1_status = "电脑离线"
+                device1_status = f"{data.dget("device1_name")}离线"
                 device1_status_int = 0
                 device1_app = ""
                 autoSleep()
             elif status == 1:
-                device1_status = "电脑在线: "
+                device1_status = f"{data.dget("device1_name")}在线: "
                 device1_status_int = 1
                 device1_app = request_data["app"]
-                my_status = 1
                 device1_time_update = True
                 wakeup()
             else:
@@ -290,15 +287,14 @@ def set_device():
         elif device == 2:
             log.info(f'device2 status: {device2_status_int} -> {status}, app: {device2_app} -> {request_data["app"] if status else "ignored"}')
             if status == 0:
-                device2_status = "红米K50 Ultra离线"
+                device2_status = f"{data.dget("device2_name")}离线"
                 device2_status_int = 0
                 device2_app = ""
                 autoSleep()
             elif status == 1:
-                device2_status = "红米K50 Ultra在线: "
+                device2_status = f"{data.dget("device2_name")}在线: "
                 device2_status_int = 1
                 device2_app = request_data["app"]
-                my_status = 1
                 device2_time_update = True
                 wakeup()
             else:
@@ -310,15 +306,14 @@ def set_device():
         elif device == 3:
             log.info(f'device3 status: {device3_status_int} -> {status}, app: {device3_app} -> {request_data["app"] if status else "ignored"}')
             if status == 0:
-                device3_status = "一加Ace Pro离线"
+                device3_status = f"{data.dget("device3_name")}离线"
                 device3_status_int = 0
                 device3_app = ""
                 autoSleep()
             elif status == 1:
-                device3_status = "一加Ace Pro在线: "
+                device3_status = f"{data.dget("device3_name")}在线: "
                 device3_status_int = 1
                 device3_app = request_data["app"]
-                my_status = 1
                 device3_time_update = True
                 wakeup()
             else:
